@@ -5,8 +5,11 @@
 package it.polito.tdp.crimes;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.crimes.model.Adiacenza;
+import it.polito.tdp.crimes.model.Event;
 import it.polito.tdp.crimes.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -25,16 +28,16 @@ public class FXMLController {
     private URL location;
 
     @FXML // fx:id="boxCategoria"
-    private ComboBox<?> boxCategoria; // Value injected by FXMLLoader
+    private ComboBox<String> boxCategoria; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxMese"
-    private ComboBox<?> boxMese; // Value injected by FXMLLoader
+    private ComboBox<Integer> boxMese; // Value injected by FXMLLoader
 
     @FXML // fx:id="btnAnalisi"
     private Button btnAnalisi; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxArco"
-    private ComboBox<?> boxArco; // Value injected by FXMLLoader
+    private ComboBox<Adiacenza> boxArco; // Value injected by FXMLLoader
 
     @FXML // fx:id="btnPercorso"
     private Button btnPercorso; // Value injected by FXMLLoader
@@ -44,12 +47,38 @@ public class FXMLController {
 
     @FXML
     void doCalcolaPercorso(ActionEvent event) {
-
+    	txtResult.clear();
+    	Adiacenza arco= this.boxArco.getValue();
+    	if (arco==null) {
+    		txtResult.appendText("selezionare un arco da analizzare");
+    		return;
+    	}
+    	String sorgente=arco.getV1();
+    	String destinazione=arco.getV2();
+    	txtResult.appendText("L'arco collega i seguenti vertici:"+sorgente+" e "+ destinazione);
+    	List<String> cammino=this.model.calcolaPercorso(sorgente, destinazione);
+    	for(String vertice : cammino)
+    		txtResult.appendText(vertice+"\n");
     }
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
-
+    	txtResult.clear();
+    	String categoria=boxCategoria.getValue();
+    	if(categoria==null) {
+    		txtResult.appendText("seleziona una categoria");
+    		return;
+    	}
+    	Integer mese=boxMese.getValue();
+    	if(mese==null) {
+    		txtResult.appendText("seleziona un mese");
+    		return;
+    	}
+    	this.model.creaGrafo(categoria, mese);
+    	txtResult.appendText("Grafo creato! ");
+    	txtResult.appendText("# VERTICI: "+ this.model.numVertici());
+    	txtResult.appendText("# ARCHI: "+ this.model.numArchi());
+    	this.boxArco.getItems().addAll(this.model.getArchiMaggioriPesoMedio());
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
@@ -60,10 +89,16 @@ public class FXMLController {
         assert boxArco != null : "fx:id=\"boxArco\" was not injected: check your FXML file 'Scene.fxml'.";
         assert btnPercorso != null : "fx:id=\"btnPercorso\" was not injected: check your FXML file 'Scene.fxml'.";
         assert txtResult != null : "fx:id=\"txtResult\" was not injected: check your FXML file 'Scene.fxml'.";
-
+        
     }
     
     public void setModel(Model model) {
     	this.model = model;
+    	this.boxCategoria.getItems().addAll(this.model.getCategorie());
+ 
+        for(int p=1; p<=12;p++) {
+        	this.boxMese.getItems().add(p);
+        }
+       
     }
 }

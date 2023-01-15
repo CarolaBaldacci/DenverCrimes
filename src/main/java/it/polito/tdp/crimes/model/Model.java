@@ -87,7 +87,21 @@ public class Model {
     	}
 	
     }
-	
+
+//CONNESSIONE INTERFACCIA
+    public List <String> getCategorie() {
+    	List <String> result= new ArrayList<>();
+    	for(Event e :dao.listAllEvents())
+    		result.add(e.getOffense_category_id());
+    	return result;
+    }
+    
+    public int numVertici() {
+    	return this.grafo.vertexSet().size();
+    }
+    public int numArchi() {
+    	return this.grafo.edgeSet().size();
+    }
 	
 	
 	
