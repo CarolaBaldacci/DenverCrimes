@@ -1,6 +1,7 @@
 package it.polito.tdp.crimes.model;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.jgrapht.Graph;
@@ -11,13 +12,19 @@ import org.jgrapht.graph.SimpleWeightedGraph;
 import it.polito.tdp.crimes.db.EventsDao;
 
 public class Model {
-    
+    //punto 1
 	private Graph <String , DefaultWeightedEdge> grafo;
 	private EventsDao dao;
+	
+	//punto 2
+	private List<String> best;
+	
 	
 	public Model() {
 		dao=new EventsDao();
 	}
+
+//PUNTO 1 : CREAZIONE GRAFO
 	
 	public void creaGrafo(String categoria, int mese) {
 		grafo= new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
@@ -51,6 +58,39 @@ public class Model {
 		}
 		return result;
 	}
+	
+//PUNTO 2 :RICORSIONE
+	
+	public List<String> calcolaPercorso(String sorgente, String destinazione){
+		best= new LinkedList<>();
+		List <String> parziale= new LinkedList<>();
+		parziale.add(sorgente);
+		cerca(parziale,destinazione); //livello0 =sorgente
+		return best;
+	}
+
+    private void cerca(List<String> parziale, String destinazione) {
+    	//terminazione
+    	if(parziale.get(parziale.size()-1).equals(destinazione)) {
+    		if(parziale.size()>best.size())
+    			best=new LinkedList<>(parziale);
+    		return;
+    	}
+    	
+    	//algoritmo ricorsivo:scorro i vicini dell'ultimo inserito e provo tutte le strade
+    	for(String vicino: Graphs.neighborListOf(this.grafo, parziale.get(parziale.size()-1))) {
+    		if(!parziale.contains(vicino)) {
+    			parziale.add(vicino);
+    		    cerca(parziale, destinazione);
+    		    parziale.remove(parziale.size()-1);
+    		}
+    	}
+	
+    }
+	
+	
+	
+	
 	
 	
 	
